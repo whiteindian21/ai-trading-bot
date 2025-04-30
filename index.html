@@ -2,104 +2,138 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>AI Trading Bot</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <style>
-    body {
-      background-color: #0e0e0e;
-      color: #fff;
-    }
-    .container {
-      margin-top: 50px;
-      max-width: 500px;
-    }
-    .hidden {
-      display: none;
-    }
-  </style>
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
 </head>
-<body>
-<div class="container">
-  <h2 class="text-center mb-4">AI Trading Bot</h2>
+<body class="bg-dark text-white">
+  <div class="container py-5">
+    <h1 class="text-center mb-4">AI Trading Bot Dashboard</h1>
 
-  <div id="roleSelection">
-    <button class="btn btn-primary w-100 mb-2" onclick="showAdminLogin()">Admin Login</button>
-    <button class="btn btn-secondary w-100" onclick="showUserSection()">User Access</button>
+    <!-- Role Selection -->
+    <div id="roleSelect" class="text-center">
+      <button class="btn btn-primary me-2" onclick="showAdmin()">Admin Login</button>
+      <button class="btn btn-success" onclick="showUser()">User Access</button>
+    </div>
+
+    <!-- Admin Section -->
+    <div id="adminSection" class="d-none">
+      <div class="card text-dark mt-4">
+        <div class="card-header bg-primary text-white">
+          Admin Login
+        </div>
+        <div class="card-body">
+          <form id="adminForm">
+            <div class="mb-3">
+              <label for="adminPassword" class="form-label">Password</label>
+              <input type="password" class="form-control" id="adminPassword" required />
+            </div>
+            <div class="mb-3">
+              <label for="openaiKey" class="form-label">OpenAI API Key</label>
+              <input type="text" class="form-control" id="openaiKey" required />
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Set OpenAI Key</button>
+            <button type="button" class="btn btn-secondary mt-2 w-100" onclick="goBack()">⬅ Back</button>
+            <p id="adminMessage" class="mt-2 text-success"></p>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- User Section -->
+    <div id="userSection" class="d-none">
+      <div class="card text-dark mt-4">
+        <div class="card-header bg-success text-white">
+          User Trading Access
+        </div>
+        <div class="card-body">
+          <form id="userForm">
+            <div class="mb-3">
+              <label for="tradingKey" class="form-label">Trading API Key</label>
+              <input type="text" class="form-control" id="tradingKey" required />
+            </div>
+            <div class="mb-3">
+              <label for="exchange" class="form-label">Select Exchange</label>
+              <select class="form-select" id="exchange" required>
+                <option value="">Choose...</option>
+                <option value="binance">Binance</option>
+                <option value="coinbasepro">Coinbase Pro</option>
+                <option value="kraken">Kraken</option>
+                <option value="bybit">Bybit</option>
+                <option value="bitfinex">Bitfinex</option>
+              </select>
+            </div>
+            <button type="submit" class="btn btn-success w-100">Start Trading Bot</button>
+            <button type="button" class="btn btn-secondary mt-2 w-100" onclick="goBack()">⬅ Back</button>
+            <p id="userMessage" class="mt-2 text-info"></p>
+          </form>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <!-- Admin Login -->
-  <div id="adminLogin" class="hidden">
-    <h4 class="mt-4">Admin Login</h4>
-    <input type="password" id="adminPass" class="form-control mb-3" placeholder="Enter Admin Password">
-    <button class="btn btn-warning w-100" onclick="loginAdmin()">Login as Admin</button>
-  </div>
+  <script>
+    let openaiKey = "";
 
-  <!-- Admin API Key Input -->
-  <div id="adminSection" class="hidden">
-    <h4 class="mt-4">Set OpenAI API Key</h4>
-    <input type="text" id="adminApiKey" class="form-control mb-3" placeholder="OpenAI API Key">
-    <button class="btn btn-success w-100" onclick="saveAdminApiKey()">Save API Key</button>
-  </div>
-
-  <!-- User Section -->
-  <div id="userSection" class="hidden">
-    <h4 class="mt-4">User Settings</h4>
-    <input type="text" id="userTradingApi" class="form-control mb-3" placeholder="Your Binance/Coinbase API Key">
-    <button class="btn btn-info w-100" onclick="startBot()">Start Trading Bot</button>
-  </div>
-</div>
-
-<script>
-  const ADMIN_PASSWORD = "admin123"; // 🔒 Replace with a more secure method in production
-  let savedOpenAIKey = "";
-
-  function showAdminLogin() {
-    document.getElementById('roleSelection').classList.add('hidden');
-    document.getElementById('adminLogin').classList.remove('hidden');
-  }
-
-  function showUserSection() {
-    document.getElementById('roleSelection').classList.add('hidden');
-    document.getElementById('userSection').classList.remove('hidden');
-  }
-
-  function loginAdmin() {
-    const input = document.getElementById('adminPass').value;
-    if (input === ADMIN_PASSWORD) {
-      document.getElementById('adminLogin').classList.add('hidden');
-      document.getElementById('adminSection').classList.remove('hidden');
-    } else {
-      alert('Wrong password');
+    function showAdmin() {
+      document.getElementById("roleSelect").classList.add("d-none");
+      document.getElementById("adminSection").classList.remove("d-none");
     }
-  }
 
-  function saveAdminApiKey() {
-    savedOpenAIKey = document.getElementById('adminApiKey').value;
-    alert("API Key saved successfully.");
-  }
-
-  async function startBot() {
-    const userKey = document.getElementById('userTradingApi').value;
-    if (!userKey || !savedOpenAIKey) {
-      alert("Missing API keys.");
-      return;
+    function showUser() {
+      document.getElementById("roleSelect").classList.add("d-none");
+      document.getElementById("userSection").classList.remove("d-none");
     }
 
-    const response = await fetch("https://your-backend-url.com/start-bot", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        openai_key: savedOpenAIKey,
-        trading_key: userKey
-      })
+    function goBack() {
+      document.getElementById("adminSection").classList.add("d-none");
+      document.getElementById("userSection").classList.add("d-none");
+      document.getElementById("roleSelect").classList.remove("d-none");
+    }
+
+    document.getElementById("adminForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+      const password = document.getElementById("adminPassword").value;
+      const key = document.getElementById("openaiKey").value;
+
+      if (password === "WEN@5050_andrady") {
+        openaiKey = key;
+        document.getElementById("adminMessage").textContent = "✅ OpenAI Key saved!";
+      } else {
+        document.getElementById("adminMessage").textContent = "❌ Incorrect password.";
+      }
     });
 
-    const data = await response.json();
-    alert("Bot Started: " + JSON.stringify(data));
-  }
-</script>
+    document.getElementById("userForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const tradingKey = document.getElementById("tradingKey").value;
+      const exchange = document.getElementById("exchange").value;
+
+      if (!openaiKey) {
+        document.getElementById("userMessage").textContent = "❗ Admin must set OpenAI key first.";
+        return;
+      }
+
+      const res = await fetch("/start-bot", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          openai_key: openaiKey,
+          trading_key: tradingKey,
+          exchange: exchange
+        }),
+      });
+
+      const data = await res.json();
+      if (data.message) {
+        document.getElementById("userMessage").textContent = "✅ " + data.message;
+      } else {
+        document.getElementById("userMessage").textContent = "❌ " + (data.error || "Something went wrong.");
+      }
+    });
+  </script>
 </body>
 </html>
