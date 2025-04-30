@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Trading Bot Dashboard</title>
+  <style>
+    /* CSS for the page */
+    :root {
+      --primary-color: #4caf50;
+      --background-color: #1e1e2f;
+      --card-color: #2c2c3e;
+      --text-color: #ffffff;
+      --input-bg: #3c3c50;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--background-color);
+      color: var(--text-color);
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      background-color: var(--card-color);
+      padding: 2rem;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+      width: 90%;
+      max-width: 500px;
+      text-align: center;
+    }
+
+    h1 {
+      margin-bottom: 1.5rem;
+      font-size: 1.8rem;
+      color: var(--primary-color);
+    }
+
+    form label {
+      display: block;
+      text-align: left;
+      margin-top: 1rem;
+      font-weight: bold;
+    }
+
+    input, select, textarea, button {
+      width: 100%;
+      padding: 0.75rem;
+      margin-top: 0.5rem;
+      border: none;
+      border-radius: 8px;
+      background-color: var(--input-bg);
+      color: var(--text-color);
+      font-size: 1rem;
+    }
+
+    button {
+      background-color: var(--primary-color);
+      margin-top: 1.5rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    .result {
+      margin-top: 2rem;
+      background-color: #222;
+      padding: 1rem;
+      border-radius: 8px;
+      text-align: left;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🤖 AI Trading Bot Dashboard</h1>
+    <form id="trading-form">
+      <label for="exchange">Exchange</label>
+      <select id="exchange" name="exchange">
+        <option value="binance">Binance</option>
+        <option value="coinbasepro">Coinbase</option>
+        <option value="oanda">Forex</option>
+      </select>
+
+      <label for="apiKey">API Key</label>
+      <input type="text" id="apiKey" name="apiKey" required />
+
+      <label for="apiSecret">API Secret</label>
+      <input type="text" id="apiSecret" name="apiSecret" required />
+
+      <label for="strategy">Strategy</label>
+      <select id="strategy" name="strategy">
+        <option value="scalp">Scalping</option>
+        <option value="swing">Swing</option>
+        <option value="ai">AI Prediction</option>
+      </select>
+
+      <button type="submit">🚀 Start Bot</button>
+    </form>
+
+    <div class="result" id="result"></div>
+  </div>
+
+  <script>
+    document.getElementById('trading-form').onsubmit = async (e) => {
+      e.preventDefault();
+      const data = {
+        exchange: e.target.exchange.value,
+        apiKey: e.target.apiKey.value,
+        apiSecret: e.target.apiSecret.value,
+        strategyPrompt: e.target.strategy.value
+      };
+
+      const response = await fetch('https://your-backend-url/start-bot', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+
+      const result = await response.json();
+      document.getElementById('result').textContent = JSON.stringify(result, null, 2);
+    };
+  </script>
+</body>
+</html>
