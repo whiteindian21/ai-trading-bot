@@ -1,55 +1,37 @@
-from fastapi import FastAPI, HTTPException
+# main.py
+from fastapi import FastAPI, Request
 from pydantic import BaseModel
-import ccxt
 import openai
-import os
-from dotenv import load_dotenv
-
-# Load environment variables from .env file
-load_dotenv()
+import ccxt
 
 app = FastAPI()
 
-openai.api_key = os.getenv("OPENAI_API_KEY")  # Make sure you have this environment variable
-
 class BotRequest(BaseModel):
-    exchange: str  # 'binance', 'coinbasepro', 'oanda', etc.
-    apiKey: str
-    apiSecret: str
-    strategyPrompt: str
+    openai_key: str
+    trading_key: str
 
 @app.post("/start-bot")
-def start_bot(data: BotRequest):
-    # Ensure OpenAI API key is set
-    if not openai.api_key:
-        raise HTTPException(status_code=500, detail="OPENAI_API_KEY environment variable is not set.")
-    
-    try:
-        exchange_class = getattr(ccxt, data.exchange)
-    except AttributeError:
-        raise HTTPException(status_code=400, detail="Unsupported exchange.")
+async def start_bot(req: BotRequest):
+    # Set up OpenAI
+    openai.api_key = req.openai_key
 
-    exchange = exchange_class({
-        'apiKey': data.apiKey,
-        'secret': data.apiSecret
-    })
-
-    try:
-        balance = exchange.fetch_balance()
-    except Exception as e:
-        raise HTTPException(status_code=403, detail=str(e))
-
-    ai_response = openai.ChatCompletion.create(
-        model="gpt-4",
-        messages=[
-            {"role": "system", "content": "You're a trading strategy bot."},
-            {"role": "user", "content": data.strategyPrompt}
-        ]
+    # Example: Use OpenAI to generate some logic
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=[{
+            "role": "user",
+            "content": "What's the best crypto to buy today?"
+        }]
     )
+    advice = response.choices[0].message.content
 
-    return {
-        "status": "success",
-        "exchange": data.exchange,
-        "balance_summary": {k: v['total'] for k, v in balance['total'].items() if v > 0},
-        "strategy": ai_response['choices'][0]['message']['content']
-    }
+    # Example: Connect to Binance (use CCXT)
+    try:
+        exchange = ccxt.binance({
+            'apiKey': req.trading_key,
+            'secret': 'user-secret-here'  # replace this for real use
+        })
+        balance = exchange.fetch_balance()
+        return {"message": "Bot started", "advice": advice, "balance": balance}
+    except Exception as e:
+        return {"error": str(e)}
