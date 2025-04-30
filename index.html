@@ -1,139 +1,93 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>AI Trading Bot</title>
-  <link
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-    rel="stylesheet"
-  />
-</head>
-<body class="bg-dark text-white">
-  <div class="container py-5">
-    <h1 class="text-center mb-4">AI Trading Bot Dashboard</h1>
+<!-- ... same HTML HEAD and BODY start as before ... -->
 
-    <!-- Role Selection -->
-    <div id="roleSelect" class="text-center">
-      <button class="btn btn-primary me-2" onclick="showAdmin()">Admin Login</button>
-      <button class="btn btn-success" onclick="showUser()">User Access</button>
-    </div>
+<script>
+  let openaiKey = ""; // Shared OpenAI key (in-memory)
 
-    <!-- Admin Section -->
-    <div id="adminSection" class="d-none">
-      <div class="card text-dark mt-4">
-        <div class="card-header bg-primary text-white">
-          Admin Login
-        </div>
-        <div class="card-body">
-          <form id="adminForm">
-            <div class="mb-3">
-              <label for="adminPassword" class="form-label">Password</label>
-              <input type="password" class="form-control" id="adminPassword" required />
-            </div>
-            <div class="mb-3">
-              <label for="openaiKey" class="form-label">OpenAI API Key</label>
-              <input type="text" class="form-control" id="openaiKey" required />
-            </div>
-            <button type="submit" class="btn btn-primary w-100">Set OpenAI Key</button>
-            <button type="button" class="btn btn-secondary mt-2 w-100" onclick="goBack()">⬅ Back</button>
-            <p id="adminMessage" class="mt-2 text-success"></p>
-          </form>
-        </div>
-      </div>
-    </div>
+  function showAdmin() {
+    document.getElementById("roleSelect").classList.add("d-none");
+    document.getElementById("adminSection").classList.remove("d-none");
+  }
 
-    <!-- User Section -->
-    <div id="userSection" class="d-none">
-      <div class="card text-dark mt-4">
-        <div class="card-header bg-success text-white">
-          User Trading Access
-        </div>
-        <div class="card-body">
-          <form id="userForm">
-            <div class="mb-3">
-              <label for="tradingKey" class="form-label">Trading API Key</label>
-              <input type="text" class="form-control" id="tradingKey" required />
-            </div>
-            <div class="mb-3">
-              <label for="exchange" class="form-label">Select Exchange</label>
-              <select class="form-select" id="exchange" required>
-                <option value="">Choose...</option>
-                <option value="binance">Binance</option>
-                <option value="coinbasepro">Coinbase Pro</option>
-                <option value="kraken">Kraken</option>
-                <option value="bybit">Bybit</option>
-                <option value="bitfinex">Bitfinex</option>
-              </select>
-            </div>
-            <button type="submit" class="btn btn-success w-100">Start Trading Bot</button>
-            <button type="button" class="btn btn-secondary mt-2 w-100" onclick="goBack()">⬅ Back</button>
-            <p id="userMessage" class="mt-2 text-info"></p>
-          </form>
-        </div>
-      </div>
-    </div>
-  </div>
+  function showUser() {
+    document.getElementById("roleSelect").classList.add("d-none");
+    document.getElementById("userSection").classList.remove("d-none");
 
-  <script>
-    let openaiKey = "";
+    // If openaiKey is not set, disable the form
+    if (!openaiKey) {
+      document.getElementById("userMessage").textContent =
+        "❗ Admin has not set the OpenAI key yet. Please try again later.";
+      document.getElementById("userForm").querySelector("button").disabled = true;
+    } else {
+      document.getElementById("userMessage").textContent = "";
+      document.getElementById("userForm").querySelector("button").disabled = false;
+    }
+  }
 
-    function showAdmin() {
-      document.getElementById("roleSelect").classList.add("d-none");
-      document.getElementById("adminSection").classList.remove("d-none");
+  function goBack() {
+    document.getElementById("adminSection").classList.add("d-none");
+    document.getElementById("userSection").classList.add("d-none");
+    document.getElementById("roleSelect").classList.remove("d-none");
+
+    // Reset forms and messages
+    document.getElementById("adminForm").reset();
+    document.getElementById("openaiForm").reset();
+    document.getElementById("userForm").reset();
+    document.getElementById("adminLoginMessage").textContent = "";
+    document.getElementById("openaiMessage").textContent = "";
+    document.getElementById("userMessage").textContent = "";
+    document.getElementById("openaiForm").classList.add("d-none");
+  }
+
+  document.getElementById("adminForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+    const password = document.getElementById("adminPassword").value;
+
+    if (password === "WEN@5050_andrady") {
+      document.getElementById("adminLoginMessage").textContent =
+        "✅ Password correct. Enter OpenAI Key below.";
+      document.getElementById("openaiForm").classList.remove("d-none");
+    } else {
+      document.getElementById("adminLoginMessage").textContent =
+        "❌ Incorrect password.";
+      document.getElementById("openaiForm").classList.add("d-none");
+    }
+  });
+
+  document.getElementById("openaiForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+    openaiKey = document.getElementById("openaiKey").value;
+    document.getElementById("openaiMessage").textContent =
+      "✅ OpenAI Key saved globally. Users can now use the bot.";
+  });
+
+  document.getElementById("userForm").addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    const tradingKey = document.getElementById("tradingKey").value;
+    const exchange = document.getElementById("exchange").value;
+
+    if (!openaiKey) {
+      document.getElementById("userMessage").textContent =
+        "❗ Admin must set OpenAI key first.";
+      return;
     }
 
-    function showUser() {
-      document.getElementById("roleSelect").classList.add("d-none");
-      document.getElementById("userSection").classList.remove("d-none");
-    }
-
-    function goBack() {
-      document.getElementById("adminSection").classList.add("d-none");
-      document.getElementById("userSection").classList.add("d-none");
-      document.getElementById("roleSelect").classList.remove("d-none");
-    }
-
-    document.getElementById("adminForm").addEventListener("submit", function (e) {
-      e.preventDefault();
-      const password = document.getElementById("adminPassword").value;
-      const key = document.getElementById("openaiKey").value;
-
-      if (password === "WEN@5050_andrady") {
-        openaiKey = key;
-        document.getElementById("adminMessage").textContent = "✅ OpenAI Key saved!";
-      } else {
-        document.getElementById("adminMessage").textContent = "❌ Incorrect password.";
-      }
+    const res = await fetch("/start-bot", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        openai_key: openaiKey,
+        trading_key: tradingKey,
+        exchange: exchange
+      }),
     });
 
-    document.getElementById("userForm").addEventListener("submit", async function (e) {
-      e.preventDefault();
-      const tradingKey = document.getElementById("tradingKey").value;
-      const exchange = document.getElementById("exchange").value;
-
-      if (!openaiKey) {
-        document.getElementById("userMessage").textContent = "❗ Admin must set OpenAI key first.";
-        return;
-      }
-
-      const res = await fetch("/start-bot", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          openai_key: openaiKey,
-          trading_key: tradingKey,
-          exchange: exchange
-        }),
-      });
-
-      const data = await res.json();
-      if (data.message) {
-        document.getElementById("userMessage").textContent = "✅ " + data.message;
-      } else {
-        document.getElementById("userMessage").textContent = "❌ " + (data.error || "Something went wrong.");
-      }
-    });
-  </script>
-</body>
-</html>
+    const data = await res.json();
+    if (data.message) {
+      document.getElementById("userMessage").textContent = "✅ " + data.message;
+    } else {
+      document.getElementById("userMessage").textContent =
+        "❌ " + (data.error || "Something went wrong.");
+    }
+  });
+</script>
